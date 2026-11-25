@@ -87,6 +87,8 @@ describe('UsersService', () => {
       name: 'Ada Lovelace',
       email: 'ada@example.com',
       passwordHash: 'hashed-secret',
+      username: null,
+      avatarUrl: null,
       createdAt: new Date('2026-11-25T03:00:00.000Z'),
     };
     usersRepository.findById.mockResolvedValueOnce(stored).mockResolvedValueOnce(null);
@@ -107,6 +109,8 @@ describe('UsersService', () => {
       name: 'Ada Lovelace',
       email: 'ada@example.com',
       passwordHash,
+      username: null,
+      avatarUrl: null,
       createdAt: new Date('2026-11-25T03:00:00.000Z'),
     };
 
@@ -132,6 +136,8 @@ describe('UsersService', () => {
       name: 'Ada Lovelace',
       email: 'ada@example.com',
       passwordHash,
+      username: null,
+      avatarUrl: null,
       createdAt: new Date('2026-11-25T03:00:00.000Z'),
     };
     usersRepository.findByEmail.mockResolvedValue(stored);

@@ -10,6 +10,8 @@ describe('UsersRepository', () => {
     name: 'Ada Lovelace',
     email: 'ada@example.com',
     passwordHash: 'hashed-password',
+    username: null,
+    avatarUrl: null,
     createdAt: new Date('2026-11-25T03:00:00.000Z'),
   };
 

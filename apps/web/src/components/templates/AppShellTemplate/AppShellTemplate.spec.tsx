@@ -3,14 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { AppShellTemplate } from './AppShellTemplate'
 
 describe('AppShellTemplate', () => {
-  it('renders brand logo header and main content', () => {
+  it('renders sidebar slot and main content', () => {
     render(
-      <AppShellTemplate>
+      <AppShellTemplate sidebar={<aside aria-label="Menu lateral">Sidebar</aside>}>
         <p>Conteúdo principal</p>
       </AppShellTemplate>,
     )
 
-    expect(screen.getByRole('img', { name: 'Code Connect' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Menu lateral')).toHaveTextContent('Sidebar')
     expect(screen.getByRole('main')).toHaveTextContent('Conteúdo principal')
   })
 })

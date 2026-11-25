@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { describe, it, vi } from 'vitest'
+import { Avatar } from '../components/atoms/Avatar'
 import { BrandLogo } from '../components/atoms/BrandLogo'
 import { Button } from '../components/atoms/Button'
 import { DecorativeLogo } from '../components/atoms/DecorativeLogo'
@@ -8,14 +9,22 @@ import { Divider } from '../components/atoms/Divider'
 import { Icon } from '../components/atoms/Icon'
 import { Input } from '../components/atoms/Input'
 import { Label } from '../components/atoms/Label'
+import { Tag } from '../components/atoms/Tag'
 import { TextLink } from '../components/atoms/TextLink'
 import { AuthHeader } from '../components/molecules/AuthHeader'
 import { AuthPrompt } from '../components/molecules/AuthPrompt'
 import { Checkbox } from '../components/molecules/Checkbox'
+import { FeedTabs } from '../components/molecules/FeedTabs'
 import { FormField } from '../components/molecules/FormField'
+import { NavItem } from '../components/molecules/NavItem'
+import { PostActionStat } from '../components/molecules/PostActionStat'
+import { PostCover } from '../components/molecules/PostCover'
+import { SearchBar } from '../components/molecules/SearchBar'
 import { SocialButton } from '../components/molecules/SocialButton'
 import { LoginForm } from '../components/organisms/LoginForm'
+import { PostCard } from '../components/organisms/PostCard'
 import { RegisterForm } from '../components/organisms/RegisterForm'
+import { SidebarNav } from '../components/organisms/SidebarNav'
 import { SocialLogin } from '../components/organisms/SocialLogin'
 import { AuthTemplate } from '../components/templates/AuthTemplate'
 import { expectNoWcagViolations } from './a11y'
@@ -145,6 +154,50 @@ describe('Components (WCAG AA)', () => {
         <AuthTemplate bannerSrc="/banner.png" bannerAlt="Banner de autenticação" showBrandLogo>
           <h1>Autenticação</h1>
         </AuthTemplate>,
+      )
+      await expectNoWcagViolations(container)
+    })
+
+    it('Feed atoms, molecules, and organisms', async () => {
+      const { container } = render(
+        <MemoryRouter>
+          <div>
+            <Avatar src={null} name="Júlio Oliveira" />
+            <Tag label="React" active removable onClick={vi.fn()} />
+            <NavItem icon="feed" label="Feed" to="/" active />
+            <FeedTabs activeTab="recent" onChange={vi.fn()} />
+            <SearchBar
+              value=""
+              onChange={vi.fn()}
+              tags={['React', 'Front-end']}
+              selectedTag={null}
+              onToggleTag={vi.fn()}
+              onClearAll={vi.fn()}
+            />
+            <PostCover src={null} alt="Post de exemplo" />
+            <PostActionStat icon="heart" count={4} label="Curtir" onClick={vi.fn()} />
+            <SidebarNav isAuthenticated={false} onLogout={vi.fn()} currentPath="/" />
+            <PostCard
+              post={{
+                id: 'p1',
+                slug: 'post-1',
+                title: 'Post de exemplo',
+                summary: 'Resumo do post',
+                coverImageUrl: null,
+                tags: ['React'],
+                likesCount: 4,
+                commentsCount: 1,
+                sharesCount: 2,
+                likedByMe: false,
+                createdAt: '2026-11-25T10:00:00.000Z',
+                author: { id: 'u1', name: 'Júlio', handle: '@julio', avatarUrl: null },
+              }}
+              canInteract
+              onToggleLike={vi.fn()}
+              onOpenComments={vi.fn()}
+            />
+          </div>
+        </MemoryRouter>,
       )
       await expectNoWcagViolations(container)
     })

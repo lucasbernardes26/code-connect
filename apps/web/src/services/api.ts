@@ -65,7 +65,11 @@ export function extractApiErrorMessage(
   const { status, data } = axiosError.response
 
   if (status === 401) {
-    return 'E-mail ou senha inválidos.'
+    const requestUrl = axiosError.config?.url ?? ''
+    if (!requestUrl || requestUrl.endsWith('/auth/tokens')) {
+      return 'E-mail ou senha inválidos.'
+    }
+    return 'Sua sessão expirou ou você precisa fazer login para continuar.'
   }
 
   if (status === 409) {
