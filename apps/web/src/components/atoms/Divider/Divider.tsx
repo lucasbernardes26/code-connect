@@ -12,9 +12,9 @@ export function Divider({ label, className }: DividerProps) {
   }
 
   return (
-    <div role="separator" aria-label={label} className={cn('flex items-center gap-3', className)}>
+    <div role="separator" aria-label={label} className={cn('flex items-center gap-4', className)}>
       <span className="h-px flex-1 bg-muted/40" />
-      <span className="text-xs text-muted">{label}</span>
+      <span className="text-sm leading-normal text-offwhite">{label}</span>
       <span className="h-px flex-1 bg-muted/40" />
     </div>
   )

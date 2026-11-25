@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { cn } from '../../../lib/cn'
 
 const variants = {
-  primary: 'bg-primary text-ink hover:brightness-110',
+  primary: 'bg-primary text-deco hover:brightness-110',
   ghost: 'bg-transparent text-offwhite hover:text-primary',
 } as const
 
@@ -26,7 +26,7 @@ export function Button({
     <button
       type={type}
       className={cn(
-        'inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-lg leading-normal font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50',
         variants[variant],
         fullWidth && 'w-full',
         className,

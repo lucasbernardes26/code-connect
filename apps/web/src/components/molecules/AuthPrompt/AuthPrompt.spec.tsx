@@ -16,4 +16,21 @@ describe('AuthPrompt', () => {
     expect(link).toHaveAttribute('href', '/cadastro')
     expect(link).toHaveClass('text-primary')
   })
+
+  it('supports inline layout for registration footer prompt', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <AuthPrompt
+          layout="inline"
+          question="Já tem conta?"
+          linkLabel="Faça seu login!"
+          to="/login"
+        />
+      </MemoryRouter>,
+    )
+
+    expect(container.firstElementChild).toHaveClass('flex-row')
+    expect(screen.getByText('Já tem conta?')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /faça seu login/i })).toHaveAttribute('href', '/login')
+  })
 })

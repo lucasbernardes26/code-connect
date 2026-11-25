@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { Icon, type IconName } from './Icon'
 
 describe('Icon', () => {
-  it.each<IconName>(['arrow-right', 'clipboard', 'check'])(
+  it.each<IconName>(['arrow-right', 'clipboard', 'check', 'login'])(
     'renders decorative SVG for %s',
     (name) => {
       const { container } = render(<Icon name={name} className="text-primary" />)
