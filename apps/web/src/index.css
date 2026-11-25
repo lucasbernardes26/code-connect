@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #01080e;
+  --color-surface: #171d1f;
+  --color-primary: #81fe88;
+  --color-field: #888888;
+  --color-offwhite: #e1e1e1;
+  --color-muted: #bcbcbc;
+  --color-deco: #132e35;
+  --font-sans: "Prompt", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-ink font-sans text-offwhite antialiased;
+  }
+}
