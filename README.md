@@ -24,6 +24,10 @@ Você pode executar os comandos abaixo diretamente da raiz sem precisar navegar 
 - `pnpm run lint:web`: Executa o linter no frontend.
 - `pnpm run preview:web`: Visualiza o build de produção do frontend localmente.
 
+### Banco de Dados (PostgreSQL + Docker)
+- `docker compose up -d`: Sobe o banco PostgreSQL 17 em container com volume persistente (`postgres_data`).
+- `pnpm --filter api run db:migrate`: Aplica as migrações SQL do Drizzle no PostgreSQL.
+
 ### Aplicação API (NestJS)
 - `pnpm run dev:api`: Inicia o NestJS em modo watch (`start:dev`).
 - `pnpm run build:api`: Realiza o build da API NestJS.
