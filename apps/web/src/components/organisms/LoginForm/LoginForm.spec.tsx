@@ -10,7 +10,7 @@ function renderLoginForm(props?: Partial<React.ComponentProps<typeof LoginForm>>
 
   render(
     <MemoryRouter>
-      <LoginForm onSubmit={onSubmit} onSocialLogin={onSocialLogin} />
+      <LoginForm {...props} onSubmit={onSubmit} onSocialLogin={onSocialLogin} />
     </MemoryRouter>,
   )
 
@@ -22,7 +22,7 @@ describe('LoginForm', () => {
     renderLoginForm()
 
     expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument()
-    expect(screen.getByLabelText('Email ou usuário')).toBeInTheDocument()
+    expect(screen.getByLabelText('Email')).toBeInTheDocument()
     expect(screen.getByLabelText('Senha')).toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: 'Lembrar-me' })).toBeChecked()
     expect(screen.getByRole('link', { name: 'Esqueci a senha' })).toHaveAttribute(
@@ -37,31 +37,51 @@ describe('LoginForm', () => {
     expect(screen.getByRole('button', { name: 'Gmail' })).toBeInTheDocument()
   })
 
-  it('shows validation errors and does not submit when fields are empty', async () => {
+  it('shows validation errors and does not submit when fields are empty or invalid', async () => {
     const user = userEvent.setup()
     const { onSubmit } = renderLoginForm()
 
     await user.click(screen.getByRole('button', { name: /login/i }))
 
-    expect(screen.getByText('Informe seu email ou usuário')).toBeInTheDocument()
+    expect(screen.getByText('Informe seu email')).toBeInTheDocument()
     expect(screen.getByText('Informe sua senha')).toBeInTheDocument()
+    expect(onSubmit).not.toHaveBeenCalled()
+
+    await user.type(screen.getByLabelText('Email'), 'email-invalido')
+    await user.click(screen.getByRole('button', { name: /login/i }))
+
+    expect(screen.getByText('Informe um email válido')).toBeInTheDocument()
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
-  it('submits credentials when form is valid', async () => {
+  it('submits normalized email credentials when form is valid', async () => {
     const user = userEvent.setup()
     const { onSubmit } = renderLoginForm()
 
-    await user.type(screen.getByLabelText('Email ou usuário'), '  usuario123  ')
-    await user.type(screen.getByLabelText('Senha'), 'segredo')
+    await user.type(screen.getByLabelText('Email'), '  Ada@Example.com  ')
+    await user.type(screen.getByLabelText('Senha'), 'segredo123')
     await user.click(screen.getByRole('checkbox', { name: 'Lembrar-me' }))
     await user.click(screen.getByRole('button', { name: /login/i }))
 
     expect(onSubmit).toHaveBeenCalledWith({
-      identifier: 'usuario123',
-      password: 'segredo',
+      email: 'ada@example.com',
+      password: 'segredo123',
       remember: false,
     })
+  })
+
+  it('displays success/error banners and disables submit while submitting', () => {
+    renderLoginForm({
+      defaultEmail: 'ada@example.com',
+      successMessage: 'Cadastro realizado com sucesso!',
+      errorMessage: 'E-mail ou senha inválidos.',
+      isSubmitting: true,
+    })
+
+    expect(screen.getByLabelText('Email')).toHaveValue('ada@example.com')
+    expect(screen.getByRole('status')).toHaveTextContent('Cadastro realizado com sucesso!')
+    expect(screen.getByRole('alert')).toHaveTextContent('E-mail ou senha inválidos.')
+    expect(screen.getByRole('button', { name: 'Entrando...' })).toBeDisabled()
   })
 
   it('forwards social login clicks', async () => {

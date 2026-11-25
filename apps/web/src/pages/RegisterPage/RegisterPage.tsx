@@ -1,16 +1,42 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { RegisterForm, type RegisterData } from '../../components/organisms/RegisterForm'
 import type { SocialProvider } from '../../components/organisms/SocialLogin'
 import { AuthTemplate } from '../../components/templates/AuthTemplate'
+import { extractApiErrorMessage } from '../../services/api'
+import { authService } from '../../services/auth.service'
 
-/** Registration page connecting the AuthTemplate layout with the RegisterForm organism. */
+/** Registration page connecting the AuthTemplate layout with RegisterForm and POST /users. */
 export function RegisterPage() {
-  function handleRegister(data: RegisterData) {
-    // TODO: integrate with user registration API endpoint when available
-    console.info('Registration submitted', {
-      name: data.name,
-      email: data.email,
-      remember: data.remember,
-    })
+  const navigate = useNavigate()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
+
+  async function handleRegister(data: RegisterData) {
+    setIsSubmitting(true)
+    setErrorMessage(undefined)
+
+    try {
+      await authService.register({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      })
+
+      void navigate('/login', {
+        replace: true,
+        state: {
+          successMessage: 'Cadastro realizado com sucesso! Faça seu login.',
+          registeredEmail: data.email,
+        },
+      })
+    } catch (error) {
+      setErrorMessage(
+        extractApiErrorMessage(error, 'Não foi possível concluir o cadastro. Tente novamente.'),
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   function handleSocialLogin(provider: SocialProvider) {
@@ -24,7 +50,12 @@ export function RegisterPage() {
       bannerAlt="Mulher programando em ambiente com telas verdes"
       showBrandLogo
     >
-      <RegisterForm onSubmit={handleRegister} onSocialLogin={handleSocialLogin} />
+      <RegisterForm
+        onSubmit={handleRegister}
+        onSocialLogin={handleSocialLogin}
+        isSubmitting={isSubmitting}
+        errorMessage={errorMessage}
+      />
     </AuthTemplate>
   )
 }

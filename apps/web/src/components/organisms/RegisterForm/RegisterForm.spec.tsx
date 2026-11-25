@@ -10,7 +10,7 @@ function renderRegisterForm(props?: Partial<React.ComponentProps<typeof Register
 
   render(
     <MemoryRouter>
-      <RegisterForm onSubmit={onSubmit} onSocialLogin={onSocialLogin} />
+      <RegisterForm {...props} onSubmit={onSubmit} onSocialLogin={onSocialLogin} />
     </MemoryRouter>,
   )
 
@@ -44,15 +44,16 @@ describe('RegisterForm', () => {
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
-  it('shows email and password format errors and clears them on edit', async () => {
+  it('shows name, email and password format errors and clears them on edit', async () => {
     const user = userEvent.setup()
     const { onSubmit } = renderRegisterForm()
 
-    await user.type(screen.getByLabelText('Nome'), 'Maria Silva')
+    await user.type(screen.getByLabelText('Nome'), 'A')
     await user.type(screen.getByLabelText('Email'), 'email-invalido')
     await user.type(screen.getByLabelText('Senha'), '123')
     await user.click(screen.getByRole('button', { name: /cadastrar/i }))
 
+    expect(screen.getByText('O nome deve ter pelo menos 2 caracteres')).toBeInTheDocument()
     expect(screen.getByText('Informe um email válido')).toBeInTheDocument()
     expect(screen.getByText('A senha deve ter pelo menos 6 caracteres')).toBeInTheDocument()
     expect(onSubmit).not.toHaveBeenCalled()
@@ -66,7 +67,7 @@ describe('RegisterForm', () => {
     const { onSubmit } = renderRegisterForm()
 
     await user.type(screen.getByLabelText('Nome'), '  Maria Silva  ')
-    await user.type(screen.getByLabelText('Email'), '  maria@example.com  ')
+    await user.type(screen.getByLabelText('Email'), '  Maria@Example.com  ')
     await user.type(screen.getByLabelText('Senha'), 'segredo123')
     await user.click(screen.getByRole('checkbox', { name: 'Lembrar-me' }))
     await user.click(screen.getByRole('button', { name: /cadastrar/i }))
@@ -77,6 +78,16 @@ describe('RegisterForm', () => {
       password: 'segredo123',
       remember: false,
     })
+  })
+
+  it('displays error banner and disables submit while submitting', () => {
+    renderRegisterForm({
+      errorMessage: 'Este e-mail já está cadastrado.',
+      isSubmitting: true,
+    })
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Este e-mail já está cadastrado.')
+    expect(screen.getByRole('button', { name: 'Cadastrando...' })).toBeDisabled()
   })
 
   it('forwards social login clicks', async () => {
