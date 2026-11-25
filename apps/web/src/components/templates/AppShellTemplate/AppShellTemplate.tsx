@@ -1,20 +1,18 @@
 import type { ReactNode } from 'react'
-import { BrandLogo } from '../../atoms/BrandLogo'
 
 export type AppShellTemplateProps = {
+  sidebar: ReactNode
   children: ReactNode
 }
 
-/** Main layout template for authenticated application screens. */
-export function AppShellTemplate({ children }: AppShellTemplateProps) {
+/** Shared two-column application layout reused across Feed, Post Details, and Profile screens. */
+export function AppShellTemplate({ sidebar, children }: AppShellTemplateProps) {
   return (
     <div className="min-h-screen bg-ink text-offwhite">
-      <header className="border-b border-deco bg-surface">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
-          <BrandLogo />
-        </div>
-      </header>
-      <main className="mx-auto w-full max-w-5xl px-6 py-10">{children}</main>
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pt-8 pb-28 lg:flex-row lg:items-start lg:gap-7 lg:px-6 lg:py-14">
+        {sidebar}
+        <main className="min-w-0 flex-1">{children}</main>
+      </div>
     </div>
   )
 }

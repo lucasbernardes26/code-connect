@@ -19,6 +19,8 @@
     "lint:api": "pnpm --filter api lint",
     "test:api": "pnpm --filter api test",
     "test:api:watch": "pnpm --filter api test:watch",
-    "test:api:e2e": "pnpm --filter api test:e2e"
+    "test:api:e2e": "pnpm --filter api test:e2e",
+    "db:migrate": "pnpm --filter api run db:migrate",
+    "db:seed": "pnpm --filter api run db:seed"
   }
 }

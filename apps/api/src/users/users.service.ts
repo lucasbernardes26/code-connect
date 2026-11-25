@@ -65,6 +65,10 @@ function normalizeEmail(email: string): string {
 }
 
 function toPublicUser(stored: StoredUser): User {
-  const { passwordHash: _, ...user } = stored;
-  return user;
+  return {
+    id: stored.id,
+    name: stored.name,
+    email: stored.email,
+    createdAt: stored.createdAt,
+  };
 }

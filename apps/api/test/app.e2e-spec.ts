@@ -7,7 +7,7 @@ import request from 'supertest';
 import { App } from 'supertest/types.js';
 import { AppModule } from '../src/app.module.js';
 import type { Database } from '../src/database/database.types.js';
-import { users } from '../src/database/schema.js';
+import { posts, users } from '../src/database/schema.js';
 
 describe('Code Connect API (e2e)', () => {
   let app: INestApplication<App>;
@@ -24,6 +24,7 @@ describe('Code Connect API (e2e)', () => {
     await app.init();
 
     const db = moduleFixture.get<Database>(getDrizzleToken());
+    await db.delete(posts);
     await db.delete(users);
   });
 
@@ -135,10 +136,100 @@ describe('Code Connect API (e2e)', () => {
     expect(document.paths['/users']?.post).toBeDefined();
     expect(document.paths['/auth/tokens']?.post).toBeDefined();
     expect(document.paths['/users/me']?.get).toBeDefined();
+    expect(document.paths['/posts']?.get).toBeDefined();
+    expect(document.paths['/posts/{id}/likes']?.post).toBeDefined();
+    expect(document.paths['/posts/{id}/comments']?.post).toBeDefined();
     expect(document.components?.schemas).toHaveProperty('CreateUserDto');
     expect(document.components?.schemas).toHaveProperty('UserResponseDto');
     expect(document.components?.schemas).toHaveProperty('CreateTokenDto');
     expect(document.components?.schemas).toHaveProperty('TokenResponseDto');
     expect(document.components?.schemas).toHaveProperty('ErrorResponseDto');
+  });
+
+  it('lists posts publicly with FTS search, blocks anonymous likes/comments, and allows authenticated interactions', async () => {
+    const db = app.get<Database>(getDrizzleToken());
+    const [author] = await db
+      .insert(users)
+      .values({
+        name: 'Júlio Oliveira',
+        email: 'julio.e2e@example.com',
+        username: 'julio.e2e',
+        passwordHash: 'hash',
+      })
+      .returning();
+
+    const [createdPost] = await db
+      .insert(posts)
+      .values({
+        slug: 'acessibilidade-react-e2e',
+        title: 'Acessibilidade no React',
+        summary: 'Guia prático de WCAG AA',
+        codeSnippet: 'export const Button = () => null;',
+        coverImageUrl: null,
+        tags: ['React', 'Acessibilidade'],
+        authorId: author!.id,
+      })
+      .returning();
+
+    // Anonymous user can read feed and search via Full-Text Search
+    const feedRes = await request(app.getHttpServer())
+      .get('/posts?q=acessibilidade')
+      .expect(200);
+
+    expect(feedRes.body.items).toHaveLength(1);
+    expect(feedRes.body.items[0]).toMatchObject({
+      id: createdPost!.id,
+      title: 'Acessibilidade no React',
+      likedByMe: false,
+      likesCount: 0,
+      commentsCount: 0,
+    });
+
+    // Anonymous user cannot like or comment
+    await request(app.getHttpServer()).post(`/posts/${createdPost!.id}/likes`).expect(401);
+    await request(app.getHttpServer())
+      .post(`/posts/${createdPost!.id}/comments`)
+      .send({ body: 'Tentativa anônima' })
+      .expect(401);
+
+    // Register and authenticate another user
+    await request(app.getHttpServer())
+      .post('/users')
+      .send({
+        name: 'Márcia Santos',
+        email: 'marcia.e2e@example.com',
+        password: 'secret123',
+      })
+      .expect(201);
+
+    const loginRes = await request(app.getHttpServer())
+      .post('/auth/tokens')
+      .send({
+        email: 'marcia.e2e@example.com',
+        password: 'secret123',
+      })
+      .expect(200);
+
+    const token = loginRes.body.accessToken as string;
+
+    // Authenticated user can like, comment, and unlike
+    const likeRes = await request(app.getHttpServer())
+      .post(`/posts/${createdPost!.id}/likes`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(201);
+    expect(likeRes.body).toEqual({ likesCount: 1, likedByMe: true });
+
+    const commentRes = await request(app.getHttpServer())
+      .post(`/posts/${createdPost!.id}/comments`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ body: 'Excelente artigo!' })
+      .expect(201);
+    expect(commentRes.body.body).toBe('Excelente artigo!');
+
+    const unlikeRes = await request(app.getHttpServer())
+      .delete(`/posts/${createdPost!.id}/likes/me`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(unlikeRes.body).toEqual({ likesCount: 0, likedByMe: false });
   });
 });

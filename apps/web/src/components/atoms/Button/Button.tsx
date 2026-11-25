@@ -3,6 +3,7 @@ import { cn } from '../../../lib/cn'
 
 const variants = {
   primary: 'bg-primary text-deco hover:brightness-110',
+  outline: 'border border-primary bg-transparent text-primary hover:bg-deco font-normal',
   ghost: 'bg-transparent text-offwhite hover:text-primary',
 } as const
 
