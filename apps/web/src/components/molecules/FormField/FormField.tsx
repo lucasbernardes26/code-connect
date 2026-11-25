@@ -21,7 +21,7 @@ export function FormField({
   const errorId = error ? `${id}-error` : undefined
 
   return (
-    <div className={cn('flex flex-col gap-1.5', containerClassName)}>
+    <div className={cn('flex flex-col gap-2', containerClassName)}>
       <Label htmlFor={id}>{label}</Label>
       <Input
         id={id}
@@ -31,7 +31,7 @@ export function FormField({
         {...inputProps}
       />
       {error && (
-        <p id={errorId} role="alert" className="text-xs text-red-400">
+        <p id={errorId} role="alert" className="text-xs text-danger">
           {error}
         </p>
       )}

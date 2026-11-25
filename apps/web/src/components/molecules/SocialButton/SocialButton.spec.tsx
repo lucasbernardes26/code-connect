@@ -7,7 +7,7 @@ describe('SocialButton', () => {
   it('renders provider label and icon and triggers onClick', async () => {
     const user = userEvent.setup()
     const onClick = vi.fn()
-    render(<SocialButton iconSrc="/github.png" label="Github" onClick={onClick} />)
+    render(<SocialButton iconSrc="/social/github.svg" label="Github" onClick={onClick} />)
 
     const button = screen.getByRole('button', { name: 'Github' })
     expect(button).toBeInTheDocument()

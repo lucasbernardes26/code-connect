@@ -13,5 +13,16 @@ describe('AuthTemplate', () => {
     const banner = screen.getByRole('img', { name: 'Banner de login' })
     expect(banner).toHaveAttribute('src', '/banner.png')
     expect(screen.getByText('Formulário')).toBeInTheDocument()
+    expect(screen.queryByRole('img', { name: 'Code Connect' })).not.toBeInTheDocument()
+  })
+
+  it('renders optional brand logo overlay when showBrandLogo is enabled', () => {
+    render(
+      <AuthTemplate bannerSrc="/banner-cadastro.png" bannerAlt="Banner de cadastro" showBrandLogo>
+        <div>Cadastro</div>
+      </AuthTemplate>,
+    )
+
+    expect(screen.getByRole('img', { name: 'Code Connect' })).toBeInTheDocument()
   })
 })
