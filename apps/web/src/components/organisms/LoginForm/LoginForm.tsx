@@ -5,28 +5,42 @@ import { TextLink } from '../../atoms/TextLink'
 import { AuthHeader } from '../../molecules/AuthHeader'
 import { AuthPrompt } from '../../molecules/AuthPrompt'
 import { Checkbox } from '../../molecules/Checkbox'
+import { FeedbackBanner } from '../../molecules/FeedbackBanner'
 import { FormField } from '../../molecules/FormField'
 import { SocialLogin, type SocialProvider } from '../SocialLogin'
 
 export type LoginCredentials = {
-  identifier: string
+  email: string
   password: string
   remember: boolean
 }
 
 export type LoginFormProps = {
-  onSubmit: (credentials: LoginCredentials) => void
+  onSubmit: (credentials: LoginCredentials) => void | Promise<void>
   onSocialLogin?: (provider: SocialProvider) => void
+  defaultEmail?: string
+  isSubmitting?: boolean
+  errorMessage?: string
+  successMessage?: string
 }
 
 type FieldErrors = {
-  identifier?: string
+  email?: string
   password?: string
 }
 
-/** Controlled login form with client-side validation, social login, and signup link. */
-export function LoginForm({ onSubmit, onSocialLogin }: LoginFormProps) {
-  const [identifier, setIdentifier] = useState('')
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+/** Controlled login form with client-side validation, API feedback, social login, and signup link. */
+export function LoginForm({
+  onSubmit,
+  onSocialLogin,
+  defaultEmail = '',
+  isSubmitting = false,
+  errorMessage,
+  successMessage,
+}: LoginFormProps) {
+  const [email, setEmail] = useState(defaultEmail)
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(true)
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -34,24 +48,27 @@ export function LoginForm({ onSubmit, onSocialLogin }: LoginFormProps) {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const trimmedIdentifier = identifier.trim()
+    const trimmedEmail = email.trim().toLowerCase()
     const nextErrors: FieldErrors = {}
 
-    if (!trimmedIdentifier) {
-      nextErrors.identifier = 'Informe seu email ou usuário'
+    if (!trimmedEmail) {
+      nextErrors.email = 'Informe seu email'
+    } else if (!EMAIL_PATTERN.test(trimmedEmail)) {
+      nextErrors.email = 'Informe um email válido'
     }
+
     if (!password) {
       nextErrors.password = 'Informe sua senha'
     }
 
-    if (nextErrors.identifier || nextErrors.password) {
+    if (nextErrors.email || nextErrors.password) {
       setErrors(nextErrors)
       return
     }
 
     setErrors({})
-    onSubmit({
-      identifier: trimmedIdentifier,
+    void onSubmit({
+      email: trimmedEmail,
       password,
       remember,
     })
@@ -62,20 +79,25 @@ export function LoginForm({ onSubmit, onSocialLogin }: LoginFormProps) {
       <div className="flex flex-col gap-8">
         <AuthHeader title="Login" subtitle="Boas-vindas! Faça seu login." />
 
+        {successMessage && <FeedbackBanner variant="success" message={successMessage} />}
+        {errorMessage && <FeedbackBanner variant="error" message={errorMessage} />}
+
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-8">
           <div className="flex flex-col gap-4">
             <FormField
-              id="login-identifier"
-              name="identifier"
-              label="Email ou usuário"
-              placeholder="usuario123"
-              autoComplete="username"
-              value={identifier}
-              error={errors.identifier}
+              id="login-email"
+              name="email"
+              type="email"
+              label="Email"
+              placeholder="Digite seu email"
+              autoComplete="email"
+              disabled={isSubmitting}
+              value={email}
+              error={errors.email}
               onChange={(event) => {
-                setIdentifier(event.target.value)
-                if (errors.identifier) {
-                  setErrors((prev) => ({ ...prev, identifier: undefined }))
+                setEmail(event.target.value)
+                if (errors.email) {
+                  setErrors((prev) => ({ ...prev, email: undefined }))
                 }
               }}
             />
@@ -88,6 +110,7 @@ export function LoginForm({ onSubmit, onSocialLogin }: LoginFormProps) {
                 label="Senha"
                 placeholder="******"
                 autoComplete="current-password"
+                disabled={isSubmitting}
                 value={password}
                 error={errors.password}
                 onChange={(event) => {
@@ -103,6 +126,7 @@ export function LoginForm({ onSubmit, onSocialLogin }: LoginFormProps) {
                   id="login-remember"
                   label="Lembrar-me"
                   checked={remember}
+                  disabled={isSubmitting}
                   onChange={(event) => setRemember(event.target.checked)}
                 />
                 <TextLink
@@ -116,8 +140,13 @@ export function LoginForm({ onSubmit, onSocialLogin }: LoginFormProps) {
             </div>
           </div>
 
-          <Button type="submit" fullWidth icon={<Icon name="arrow-right" />}>
-            Login
+          <Button
+            type="submit"
+            fullWidth
+            disabled={isSubmitting}
+            icon={<Icon name="arrow-right" />}
+          >
+            {isSubmitting ? 'Entrando...' : 'Login'}
           </Button>
         </form>
 
