@@ -66,7 +66,8 @@ apps/web/src/
 ### 3.2. Estilização: Tailwind CSS
 - Utilize **Tailwind CSS** para toda e qualquer estilização de componentes.
 - Evite estilos inline (`style={{ ... }}`) ou folhas de estilo CSS avulsas desnecessárias.
-- Mantenha conformidade com o design system do Tailwind (escalas de espaçamento, tipografia, paleta semântica de cores).
+- **Paleta de Cores (`@theme`)**: Toda cor utilizada nos componentes deve referenciar os tokens semânticos definidos no `@theme` em `apps/web/src/index.css` (`ink`, `surface`, `primary`, `field`, `offwhite`, `muted`, `deco`, `danger`). É proibido usar hexadecimais diretos (`bg-[#...]`, `text-[#...]`) ou cores padrão fora da paleta (como `red-400`, `white`) nas classes dos componentes; se precisar de uma nova cor, estenda o `@theme` em `index.css`.
+- **Tamanhos e Escalas**: Utilize sempre os tokens padrão da escala do Tailwind mais próximos para tipografia, espaçamento, dimensões e raios de borda (ex.: `text-xs`, `text-sm`, `text-lg`, `text-xl`, `text-3xl`, `rounded-4xl`, `max-w-5xl`), evitando valores arbitrários entre colchetes (`text-[15px]`, `rounded-[32px]`, `px-[78px]`).
 - Componentes com variações visuais devem utilizar utilitários organizados (como classes condicionais ou `clsx` / `tailwind-merge` quando aplicável).
 
 ### 3.3. Cobertura de Testes para Componentes
