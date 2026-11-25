@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react'
+import { MemoryRouter } from 'react-router'
 import { describe, it, vi } from 'vitest'
 import { AuthContext, type AuthContextValue } from '../../contexts/AuthContext'
 import { expectNoWcagViolations } from '../../test/a11y'
@@ -21,7 +22,11 @@ describe('HomePage (WCAG AA)', () => {
 
     const { container } = render(
       <AuthContext.Provider value={contextValue}>
-        <HomePage />
+        <MemoryRouter
+          initialEntries={[{ pathname: '/', state: { successMessage: 'Login realizado com sucesso!' } }]}
+        >
+          <HomePage />
+        </MemoryRouter>
       </AuthContext.Provider>,
     )
 

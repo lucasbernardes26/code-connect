@@ -31,7 +31,12 @@ export function LoginPage() {
         password: credentials.password,
         remember: credentials.remember,
       })
-      void navigate('/', { replace: true })
+      void navigate('/', {
+        replace: true,
+        state: {
+          successMessage: 'Login realizado com sucesso!',
+        },
+      })
     } catch (error) {
       setErrorMessage(
         extractApiErrorMessage(error, 'Não foi possível realizar o login. Tente novamente.'),

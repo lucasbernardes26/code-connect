@@ -1,11 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import { AuthContext, type AuthContextValue } from '../../contexts/AuthContext'
 import { HomePage } from './HomePage'
 
 describe('HomePage', () => {
-  it('renders authenticated user profile and triggers logout', async () => {
+  it('renders authenticated user profile, login success banner, and triggers logout', async () => {
     const user = userEvent.setup()
     const logout = vi.fn()
     const contextValue: AuthContextValue = {
@@ -23,10 +24,15 @@ describe('HomePage', () => {
 
     render(
       <AuthContext.Provider value={contextValue}>
-        <HomePage />
+        <MemoryRouter
+          initialEntries={[{ pathname: '/', state: { successMessage: 'Login realizado com sucesso!' } }]}
+        >
+          <HomePage />
+        </MemoryRouter>
       </AuthContext.Provider>,
     )
 
+    expect(screen.getByRole('status')).toHaveTextContent('Login realizado com sucesso!')
     expect(screen.getByRole('heading', { name: 'Olá, Ada Lovelace' })).toBeInTheDocument()
     expect(screen.getByText('ada@example.com')).toBeInTheDocument()
 
